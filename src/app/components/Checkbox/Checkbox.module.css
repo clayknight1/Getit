@@ -1,0 +1,62 @@
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  user-select: none;
+  margin-right: var(--space-sm);
+  position: relative;
+
+  /* hide the real checkbox but keep it focusable/accessibile */
+  input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .checkmark {
+    width: 20px;
+    height: 20px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--color-border);
+    background: var(--color-surface);
+    display: inline-block;
+    position: relative;
+    transition: border-color 0.15s ease-out, background-color 0.15s ease-out,
+      box-shadow 0.15s ease-out;
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 6px;
+      height: 10px;
+      border: solid #ffffff;
+      border-width: 0 2px 2px 0;
+      transform: translate(-50%, -55%) scale(0) rotate(45deg);
+      transition: transform 0.15s ease-out;
+    }
+  }
+
+  /* hover: soften border to primary soft */
+  &:hover .checkmark {
+    border-color: var(--color-primary-soft);
+  }
+
+  /* checked state */
+  input:checked + .checkmark {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+
+    &::after {
+      transform: translate(-50%, -55%) scale(1) rotate(45deg);
+    }
+  }
+
+  /* keyboard focus ring */
+  input:focus-visible + .checkmark {
+    box-shadow: 0 0 0 2px var(--color-primary-soft);
+  }
+}
