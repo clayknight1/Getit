@@ -1,29 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ListItemRow from "../ListItemRow/ListItemRow";
 import styles from "./Card.module.css";
 import { ListItem } from "@/app/types/list-item";
 import { Store } from "@/app/types/stores";
-import Button from "../Button/Button";
+import AddItemForm from "../AddItemForm/AddItemForm";
+import { addItem } from "@/app/actions/list-items";
 
 export default function Card({ initialData }: { initialData: any }) {
   const [data, setData] = useState<Store>(initialData);
 
-  // useEffect(() => {
-  //   // console.log("Prop received on client:", initialData);
-  //   console.log("Type:", initialData);
-  //   // console.log("JSON stringified:", JSON.stringify(initialData));
-  // }, [initialData]);
-
   function handleItemSelection(id: string, checked: boolean): void {
-    // const updatedListItems = data.listItems.map((item: ListItem) => {
-    //   if (item.id === id) {
-    //     item.purchased = checked;
-    //   }
-    //   return item;
-    // });
-
     const purchased: ListItem[] = [];
     const unpurchased: ListItem[] = [];
 
@@ -38,12 +26,22 @@ export default function Card({ initialData }: { initialData: any }) {
       }
     });
     setData((prev) => ({ ...prev, listItems: [...unpurchased, ...purchased] }));
-
-    // setData((prev) => ({ ...prev, listItems: updatedListItems }));
   }
 
-  function handleAddItem(): void {
-    console.log("Button Clicked!");
+  async function handleAddItem(itemName: string): Promise<void> {
+    const userId = 1;
+    setData((prev) => ({
+      ...prev,
+      listItems: [
+        { name: itemName, id: `temp-${crypto.randomUUID()}` },
+        ...data.listItems,
+      ],
+    }));
+    try {
+      await addItem(itemName, userId, data.id);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   function handleClearPurchased(): void {
@@ -65,14 +63,7 @@ export default function Card({ initialData }: { initialData: any }) {
           );
         })}
       </ul>
-      <input className={styles.itemInput} type="text" />
-      <div className={styles.buttonWrapper}>
-        <Button text="Add Item" onButtonClick={handleAddItem}></Button>
-        {/* <Button
-          text="Clear Purchased"
-          onButtonClick={handleClearPurchased}
-        ></Button> */}
-      </div>
+      <AddItemForm onAddItem={handleAddItem}></AddItemForm>
     </div>
   );
 }

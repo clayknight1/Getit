@@ -11,7 +11,6 @@ type CheckBoxProps = {
 export default function Checkbox({ item, onToggle }: CheckBoxProps) {
   function handleCheckClick(event: any): void {
     const checked = event.target.checked;
-    console.log("CEHCKED", checked);
 
     onToggle?.(item.id, checked);
   }

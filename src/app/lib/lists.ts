@@ -15,7 +15,6 @@ async function getLists(userId: number) {
 }
 
 function groupByStore(rows: any): any[] {
-  console.log("ROWS", rows);
   const stores = new Map();
   for (const row of rows) {
     const store = row.stores;
@@ -27,7 +26,6 @@ function groupByStore(rows: any): any[] {
 
     stores.get(store.id).listItems.push(item);
   }
-  console.log("Array.from(stores.values());", Array.from(stores.values()));
   const sorted = Array.from(stores.values()).map((store) => {
     const purchased: ListItem[] = [];
     const unpurchased: ListItem[] = [];
