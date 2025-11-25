@@ -3,6 +3,8 @@ import getLists from "../lib/lists";
 import { Store } from "../types/stores";
 import styles from "./page.module.css";
 
+export const dynamic = "force-dynamic";
+
 export default async function Lists() {
   const stores = await getLists(1);
 
