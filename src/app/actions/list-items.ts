@@ -3,6 +3,7 @@
 import { groupMembers, listItems, stores } from "@/db/schema";
 import db from "../lib/data";
 import { and, eq } from "drizzle-orm";
+import { ListItemUpdate } from "../types/list-item-update";
 
 export async function addItem(
   name: string,
@@ -19,6 +20,20 @@ export async function addItem(
     storeId: storeId,
     needed: true,
   });
+}
+
+export async function updateItem(
+  itemId: number,
+  userId: number = 1,
+  storeId: number,
+  update: ListItemUpdate
+): Promise<any> {
+  const hasAccess = await assertUserCanAddToStore(userId, storeId);
+  if (!hasAccess) {
+    throw new Error("You don't have access to this store");
+  }
+  const now = new Date().toISOString();
+  await db.update(listItems).set(update).where(eq(listItems.id, itemId));
 }
 
 export async function assertUserCanAddToStore(

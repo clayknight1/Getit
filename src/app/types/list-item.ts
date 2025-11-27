@@ -1,10 +1,10 @@
 export type ListItem = {
-  id: string;
-  added_by?: number;
-  created_at?: Date;
-  name: string;
-  needed?: boolean;
-  notes?: string;
-  purchased?: boolean;
-  quantity?: number;
+  id: number;
+  added_by?: number | null;
+  created_at?: Date | null;
+  name: string | null;
+  needed?: boolean | null;
+  notes?: string | null;
+  purchased?: boolean | null;
+  quantity?: number | null;
 };

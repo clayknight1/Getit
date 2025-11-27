@@ -1,15 +1,23 @@
-// import { useFormStatus } from "react-dom";
 import styles from "./Button.module.css";
-// const { pending, data } = useFormStatus();
 
 type ButtonProps = {
   text: string;
+  disabled?: boolean;
   onButtonClick?: () => void;
 };
 
-export default function Button({ text, onButtonClick }: ButtonProps) {
+export default function Button({
+  text,
+  disabled = false,
+  onButtonClick,
+}: ButtonProps) {
   return (
-    <button className={styles.btnPrimary} onClick={onButtonClick} type="submit">
+    <button
+      className={styles.btnPrimary}
+      onClick={onButtonClick}
+      type="submit"
+      disabled={disabled}
+    >
       {text}
     </button>
   );

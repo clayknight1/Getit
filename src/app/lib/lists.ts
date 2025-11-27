@@ -2,19 +2,32 @@ import { groupMembers, listItems, stores } from "@/db/schema";
 import db from "./data";
 import { eq } from "drizzle-orm";
 import { ListItem } from "../types/list-item";
+import { Store } from "../types/stores";
 
-async function getLists(userId: number) {
+type StoreBase = {
+  id: number;
+  name: string;
+  groupId: number | null;
+};
+
+type JoinedRow = {
+  stores: StoreBase;
+  list_items: ListItem;
+};
+
+async function getLists(userId: number): Promise<Store[]> {
   const newListItems = await db
     .select()
     .from(listItems)
     .innerJoin(stores, eq(listItems.storeId, stores.id))
     .innerJoin(groupMembers, eq(stores.groupId, groupMembers.groupId))
-    .where(eq(groupMembers.userId, userId));
+    .where(eq(groupMembers.userId, userId))
+    .orderBy(stores.name, listItems.purchased, listItems.createdAt);
 
   return groupByStore(newListItems);
 }
 
-function groupByStore(rows: any): any[] {
+function groupByStore(rows: JoinedRow[]): Store[] {
   const stores = new Map();
   for (const row of rows) {
     const store = row.stores;
