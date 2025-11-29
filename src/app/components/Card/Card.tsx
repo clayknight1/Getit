@@ -6,8 +6,9 @@ import styles from "./Card.module.css";
 import { ListItem } from "@/app/types/list-item";
 import { Store } from "@/app/types/stores";
 import AddItemForm from "../AddItemForm/AddItemForm";
-import { addItem, updateItem } from "@/app/actions/list-items";
+import { addItem, deleteItem, updateItem } from "@/app/actions/list-items";
 import { ListItemUpdate } from "@/app/types/list-item-update";
+import { motion, AnimatePresence } from "motion/react";
 
 export default function Card({ initialData }: { initialData: Store }) {
   const [data, setData] = useState<Store>(initialData);
@@ -16,18 +17,24 @@ export default function Card({ initialData }: { initialData: Store }) {
     itemId: number,
     { purchased }: ListItemUpdate
   ): void {
-    const updatedList: ListItem[] = data.listItems.map((item: ListItem) => {
-      if (item.id === itemId) {
-        return { ...item, purchased };
-      }
-      return item;
-    });
-    setData((prev) => ({
-      ...prev,
-      listItems: prev.listItems.map((item) =>
+    setData((prev) => {
+      const updatedListItems = prev.listItems.map((item) =>
         item.id === itemId ? { ...item, purchased } : item
-      ),
-    }));
+      );
+
+      const unpurchased = updatedListItems
+        .filter((item) => !item.purchased)
+        .sort((a, b) => a.id - b.id);
+      const purchasedItems = updatedListItems
+        .filter((item) => item.purchased)
+        .sort((a, b) => a.id - b.id);
+      const newOrder = [...unpurchased, ...purchasedItems];
+
+      return {
+        ...prev,
+        listItems: newOrder,
+      };
+    });
     const purchasedAt = purchased ? new Date().toISOString() : null;
     const update = {
       purchased,
@@ -39,15 +46,39 @@ export default function Card({ initialData }: { initialData: Store }) {
 
   async function handleAddItem(itemName: string): Promise<void> {
     const userId = 1;
-    setData((prev) => ({
-      ...prev,
-      listItems: [{ name: itemName, id: -Date.now() }, ...prev.listItems],
-    }));
+    setData((prev) => {
+      const updatedListItems = [
+        { name: itemName, id: -Date.now() },
+        ...prev.listItems,
+      ];
+      const unpurchased = updatedListItems
+        .filter((item) => !item.purchased)
+        .sort((a, b) => a.id - b.id);
+      const purchasedItems = updatedListItems.filter((item) => item.purchased);
+
+      const newOrder = [...unpurchased, ...purchasedItems];
+
+      return {
+        ...prev,
+        listItems: newOrder,
+      };
+    });
+
     try {
       await addItem(itemName, userId, data.id);
     } catch (err) {
       console.error(err);
     }
+  }
+
+  async function handleRemoveItem(id: number) {
+    const userId = 1;
+    setData((prev) => {
+      const updatedList = prev.listItems.filter((item) => item.id !== id);
+
+      return { ...prev, listItems: updatedList };
+    });
+    await deleteItem(id, userId, data.id);
   }
 
   function handleClearPurchased(): void {
@@ -56,19 +87,22 @@ export default function Card({ initialData }: { initialData: Store }) {
 
   return (
     <div className={styles.card}>
-      <div>
+      <div className={styles.cardContent}>
         <h2>{data?.name}</h2>
-        <ul>
-          {data?.listItems.map((item: ListItem) => {
-            return (
-              <li key={item.id}>
-                <ListItemRow
-                  item={item}
-                  onToggle={handleItemSelection}
-                ></ListItemRow>
-              </li>
-            );
-          })}
+        <ul className={styles.list}>
+          <AnimatePresence>
+            {data?.listItems.map((item: ListItem) => {
+              return (
+                <motion.li key={item.id} exit={{ opacity: 1 }} layout>
+                  <ListItemRow
+                    item={item}
+                    onToggle={handleItemSelection}
+                    onRemove={handleRemoveItem}
+                  ></ListItemRow>
+                </motion.li>
+              );
+            })}
+          </AnimatePresence>
         </ul>
       </div>
       <AddItemForm onAddItem={handleAddItem}></AddItemForm>

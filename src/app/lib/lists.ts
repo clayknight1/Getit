@@ -1,6 +1,6 @@
 import { groupMembers, listItems, stores } from "@/db/schema";
 import db from "./data";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { ListItem } from "../types/list-item";
 import { Store } from "../types/stores";
 
@@ -22,7 +22,7 @@ async function getLists(userId: number): Promise<Store[]> {
     .innerJoin(stores, eq(listItems.storeId, stores.id))
     .innerJoin(groupMembers, eq(stores.groupId, groupMembers.groupId))
     .where(eq(groupMembers.userId, userId))
-    .orderBy(stores.name, listItems.purchased, listItems.createdAt);
+    .orderBy(stores.name, listItems.purchased, desc(listItems.id));
 
   return groupByStore(newListItems);
 }
@@ -39,23 +39,7 @@ function groupByStore(rows: JoinedRow[]): Store[] {
 
     stores.get(store.id).listItems.push(item);
   }
-  const sorted = Array.from(stores.values()).map((store) => {
-    const purchased: ListItem[] = [];
-    const unpurchased: ListItem[] = [];
-
-    store.listItems.forEach((item: ListItem) => {
-      if (item.purchased) {
-        purchased.push(item);
-      } else {
-        unpurchased.push(item);
-      }
-    });
-    store.listItems = [...unpurchased, ...purchased];
-
-    return store;
-  });
-
-  return sorted;
+  return Array.from(stores.values());
 }
 
 export default getLists;

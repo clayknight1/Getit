@@ -10,7 +10,7 @@ export async function addItem(
   userId: number = 1,
   storeId: number
 ) {
-  const hasAccess = await assertUserCanAddToStore(userId, storeId);
+  const hasAccess = await assertUserHasStoreAccess(userId, storeId);
   if (!hasAccess) {
     throw new Error("You don't have access to this store");
   }
@@ -28,15 +28,26 @@ export async function updateItem(
   storeId: number,
   update: ListItemUpdate
 ): Promise<any> {
-  const hasAccess = await assertUserCanAddToStore(userId, storeId);
+  const hasAccess = await assertUserHasStoreAccess(userId, storeId);
   if (!hasAccess) {
     throw new Error("You don't have access to this store");
   }
-  const now = new Date().toISOString();
   await db.update(listItems).set(update).where(eq(listItems.id, itemId));
 }
 
-export async function assertUserCanAddToStore(
+export async function deleteItem(
+  itemId: number,
+  userId: number = 1,
+  storeId: number
+): Promise<any> {
+  const hasAccess = await assertUserHasStoreAccess(userId, storeId);
+  if (!hasAccess) {
+    throw new Error("You don't have access to this store");
+  }
+  await db.delete(listItems).where(eq(listItems.id, itemId));
+}
+
+export async function assertUserHasStoreAccess(
   userId: number,
   storeId: number
 ): Promise<boolean> {
