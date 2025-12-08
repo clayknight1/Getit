@@ -1,0 +1,14 @@
+.loginBox {
+  width: 40rem;
+  height: 20rem;
+  background-color: var(--color-primary-soft);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+
+  input {
+    padding: var(--space-sm) var(--space-md);
+    margin: var(--space-md) 0;
+  }
+}

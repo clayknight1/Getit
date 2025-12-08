@@ -1,10 +1,10 @@
 import db from "./data";
 
-export async function getListsForUser(userId: number) {}
+export async function getListsForUser(userId: string) {}
 
 // import { prisma } from "./data";
 
-// export async function getListsForUser(userId: number) {
+// export async function getListsForUser(userId: string) {
 //   const groupStoresWithLists = await prisma.stores.findMany({
 //     where: {
 //       groups: {

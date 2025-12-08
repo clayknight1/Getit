@@ -9,14 +9,14 @@ import AddItemForm from "../AddItemForm/AddItemForm";
 import { addItem, deleteItem, updateItem } from "@/app/actions/list-items";
 import { ListItemUpdate } from "@/app/types/list-item-update";
 import { motion, AnimatePresence } from "motion/react";
+import Dialog from "../Dialog/Dialog";
+import { div } from "motion/react-client";
 
 export default function Card({ initialData }: { initialData: Store }) {
   const [data, setData] = useState<Store>(initialData);
+  const [showDialog, setShowDialog] = useState<boolean>(false);
 
-  function handleItemSelection(
-    itemId: number,
-    { purchased }: ListItemUpdate
-  ): void {
+  function handleItemSelection(itemId: number, purchased: boolean): void {
     setData((prev) => {
       const updatedListItems = prev.listItems.map((item) =>
         item.id === itemId ? { ...item, purchased } : item
@@ -35,17 +35,11 @@ export default function Card({ initialData }: { initialData: Store }) {
         listItems: newOrder,
       };
     });
-    const purchasedAt = purchased ? new Date().toISOString() : null;
-    const update = {
-      purchased,
-      purchasedAt,
-      purchasedBy: 1,
-    };
-    updateItem(itemId, 1, data.id, update);
+
+    updateItem(itemId, data.id, purchased);
   }
 
   async function handleAddItem(itemName: string): Promise<void> {
-    const userId = 1;
     setData((prev) => {
       const updatedListItems = [
         { name: itemName, id: -Date.now() },
@@ -65,47 +59,52 @@ export default function Card({ initialData }: { initialData: Store }) {
     });
 
     try {
-      await addItem(itemName, userId, data.id);
+      await addItem(itemName, data.id);
     } catch (err) {
       console.error(err);
     }
   }
 
   async function handleRemoveItem(id: number) {
-    const userId = 1;
     setData((prev) => {
       const updatedList = prev.listItems.filter((item) => item.id !== id);
 
       return { ...prev, listItems: updatedList };
     });
-    await deleteItem(id, userId, data.id);
+    await deleteItem(id, data.id);
   }
 
   function handleClearPurchased(): void {
     console.log("CLEARRR");
   }
 
+  function setShowDialogState() {
+    setShowDialog((prev) => !prev);
+  }
+
   return (
-    <div className={styles.card}>
-      <div className={styles.cardContent}>
-        <h2>{data?.name}</h2>
-        <ul className={styles.list}>
-          <AnimatePresence>
-            {data?.listItems.map((item: ListItem) => {
-              return (
-                <motion.li key={item.id} exit={{ opacity: 1 }} layout>
-                  <ListItemRow
-                    item={item}
-                    onToggle={handleItemSelection}
-                    onRemove={handleRemoveItem}
-                  ></ListItemRow>
-                </motion.li>
-              );
-            })}
-          </AnimatePresence>
-        </ul>
+    <div>
+      <div className={styles.card}>
+        <div className={styles.cardContent}>
+          <h2>{data?.name}</h2>
+          <ul className={styles.list}>
+            <AnimatePresence>
+              {data?.listItems.map((item: ListItem) => {
+                return (
+                  <motion.li key={item.id} exit={{ opacity: 1 }} layout>
+                    <ListItemRow
+                      item={item}
+                      onToggle={handleItemSelection}
+                      onRemove={handleRemoveItem}
+                    ></ListItemRow>
+                  </motion.li>
+                );
+              })}
+            </AnimatePresence>
+          </ul>
+        </div>
+        <AddItemForm onAddItem={handleAddItem}></AddItemForm>
       </div>
-      <AddItemForm onAddItem={handleAddItem}></AddItemForm>
     </div>
   );
 }

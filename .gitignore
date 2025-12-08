@@ -42,3 +42,10 @@ next-env.d.ts
 .env*.local
 
 /src/generated/prisma
+
+# Drizzle generated
+drizzle/
+railway_schema.sql
+
+# Logs and temp
+*.log

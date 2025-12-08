@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { IBM_Plex_Sans, JetBrains_Mono, Nunito } from "next/font/google";
 import "./globals.css";
 
 const bodyFont = IBM_Plex_Sans({
@@ -7,7 +7,7 @@ const bodyFont = IBM_Plex_Sans({
   variable: "--font-body",
 });
 
-const headingFont = Space_Grotesk({
+const headingFont = Nunito({
   subsets: ["latin"],
   variable: "--font-heading",
 });
@@ -18,7 +18,7 @@ const monoFont = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Get it!",
+  title: "One Trip",
   description: "A shopping list app",
 };
 

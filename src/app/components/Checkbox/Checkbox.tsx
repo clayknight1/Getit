@@ -6,14 +6,14 @@ import { ListItemUpdate } from "@/app/types/list-item-update";
 
 type CheckboxProps = {
   item: ListItem;
-  onToggle?: (id: number, checked: ListItemUpdate) => void;
+  onToggle?: (id: number, checked: boolean) => void;
 };
 
 export default function Checkbox({ item, onToggle }: CheckboxProps) {
   function handleCheckClick(event: React.ChangeEvent<HTMLInputElement>): void {
     const purchased = event.target.checked;
 
-    onToggle?.(item.id, { purchased });
+    onToggle?.(item.id, purchased);
   }
 
   return (

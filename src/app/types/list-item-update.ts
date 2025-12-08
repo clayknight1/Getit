@@ -4,6 +4,6 @@ export type ListItemUpdate = {
   notes?: string | null;
   purchased?: boolean;
   purchasedAt?: string | null;
-  purchasedBy?: number | null;
+  purchasedBy?: string| null;
   quantity?: number | null;
 };

@@ -12,19 +12,19 @@ type StoreBase = {
 
 type JoinedRow = {
   stores: StoreBase;
-  list_items: ListItem;
+  list_items: ListItem | null;
 };
 
-async function getLists(userId: number): Promise<Store[]> {
-  const newListItems = await db
+async function getLists(userId: string): Promise<Store[]> {
+  const rows = await db
     .select()
-    .from(listItems)
-    .innerJoin(stores, eq(listItems.storeId, stores.id))
+    .from(stores)
     .innerJoin(groupMembers, eq(stores.groupId, groupMembers.groupId))
+    .leftJoin(listItems, eq(listItems.storeId, stores.id)) // 👈 key change
     .where(eq(groupMembers.userId, userId))
     .orderBy(stores.name, listItems.purchased, desc(listItems.id));
 
-  return groupByStore(newListItems);
+  return groupByStore(rows);
 }
 
 function groupByStore(rows: JoinedRow[]): Store[] {
@@ -37,7 +37,9 @@ function groupByStore(rows: JoinedRow[]): Store[] {
       stores.set(store?.id, { ...store, listItems: [] });
     }
 
-    stores.get(store.id).listItems.push(item);
+    if (item) {
+      stores.get(store.id).listItems.push(item);
+    }
   }
   return Array.from(stores.values());
 }

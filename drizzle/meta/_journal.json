@@ -15,6 +15,20 @@
       "when": 1764175030254,
       "tag": "0001_black_proteus",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1764700654315,
+      "tag": "0002_rapid_firestar",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1765038470434,
+      "tag": "0003_wandering_abomination",
+      "breakpoints": true
     }
   ]
 }

@@ -12,21 +12,8 @@ import {
   primaryKey,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-
-export const users = pgTable(
-  "users",
-  {
-    id: serial().primaryKey().notNull(),
-    name: text().notNull(),
-    email: text().notNull(),
-    role: text().default("MEMBER").notNull(),
-    createdAt: timestamp("created_at", {
-      withTimezone: true,
-      mode: "string",
-    }).defaultNow(),
-  },
-  (table) => [unique("users_email_key").on(table.email)]
-);
+import { user } from "./auth-schema";
+export * from "./auth-schema"; // Better Auth tables
 
 export const listItems = pgTable(
   "list_items",
@@ -37,14 +24,14 @@ export const listItems = pgTable(
     notes: text(),
     needed: boolean().default(true),
     purchased: boolean().default(false),
-    purchasedBy: integer("purchased_by"),
+    purchasedBy: text("purchased_by"),
     purchasedAt: timestamp("purchased_at", {
       withTimezone: true,
       mode: "string",
     }),
     isOptional: boolean("is_optional").default(false),
     storeId: integer("store_id"),
-    addedBy: integer("added_by"),
+    addedBy: text("added_by"),
     position: integer().default(0),
     createdAt: timestamp("created_at", {
       withTimezone: true,
@@ -70,7 +57,7 @@ export const listItems = pgTable(
     ),
     foreignKey({
       columns: [table.purchasedBy],
-      foreignColumns: [users.id],
+      foreignColumns: [user.id],
       name: "list_items_purchased_by_fkey",
     }),
     foreignKey({
@@ -80,7 +67,7 @@ export const listItems = pgTable(
     }).onDelete("cascade"),
     foreignKey({
       columns: [table.addedBy],
-      foreignColumns: [users.id],
+      foreignColumns: [user.id],
       name: "list_items_added_by_fkey",
     }),
   ]
@@ -122,14 +109,14 @@ export const groups = pgTable("groups", {
 export const groupMembers = pgTable(
   "group_members",
   {
-    userId: integer("user_id").notNull(),
+    userId: text("user_id").notNull(),
     groupId: integer("group_id").notNull(),
     role: text().default("MEMBER"),
   },
   (table) => [
     foreignKey({
       columns: [table.userId],
-      foreignColumns: [users.id],
+      foreignColumns: [user.id],
       name: "group_members_user_id_fkey",
     }).onDelete("cascade"),
     foreignKey({

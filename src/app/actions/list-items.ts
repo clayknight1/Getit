@@ -3,20 +3,17 @@
 import { groupMembers, listItems, stores } from "@/db/schema";
 import db from "../lib/data";
 import { and, eq } from "drizzle-orm";
-import { ListItemUpdate } from "../types/list-item-update";
+import { getCurrentUser } from "../lib/auth";
 
-export async function addItem(
-  name: string,
-  userId: number = 1,
-  storeId: number
-) {
-  const hasAccess = await assertUserHasStoreAccess(userId, storeId);
+export async function addItem(name: string, storeId: number) {
+  const user = await getCurrentUser();
+  const hasAccess = await assertUserHasStoreAccess(user.id, storeId);
   if (!hasAccess) {
     throw new Error("You don't have access to this store");
   }
   await db.insert(listItems).values({
     name: name,
-    addedBy: userId,
+    addedBy: user.id,
     storeId: storeId,
     needed: true,
   });
@@ -24,23 +21,31 @@ export async function addItem(
 
 export async function updateItem(
   itemId: number,
-  userId: number = 1,
   storeId: number,
-  update: ListItemUpdate
+  purchased: boolean
 ): Promise<any> {
-  const hasAccess = await assertUserHasStoreAccess(userId, storeId);
+  const user = await getCurrentUser();
+  const hasAccess = await assertUserHasStoreAccess(user.id, storeId);
+  const purchasedAt = purchased ? new Date().toISOString() : null;
   if (!hasAccess) {
     throw new Error("You don't have access to this store");
   }
-  await db.update(listItems).set(update).where(eq(listItems.id, itemId));
+  await db
+    .update(listItems)
+    .set({
+      purchased,
+      purchasedAt,
+      purchasedBy: user.id,
+    })
+    .where(eq(listItems.id, itemId));
 }
 
 export async function deleteItem(
   itemId: number,
-  userId: number = 1,
   storeId: number
 ): Promise<any> {
-  const hasAccess = await assertUserHasStoreAccess(userId, storeId);
+  const user = await getCurrentUser();
+  const hasAccess = await assertUserHasStoreAccess(user.id, storeId);
   if (!hasAccess) {
     throw new Error("You don't have access to this store");
   }
@@ -48,7 +53,7 @@ export async function deleteItem(
 }
 
 export async function assertUserHasStoreAccess(
-  userId: number,
+  userId: string,
   storeId: number
 ): Promise<boolean> {
   const result = await db
