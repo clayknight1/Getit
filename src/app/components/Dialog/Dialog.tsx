@@ -20,7 +20,13 @@ export default function Dialog() {
 
   return (
     <>
-      <button onClick={() => setShow((prev) => true)}>Add Store</button>
+      <button
+        className={styles.actionButton}
+        onClick={() => setShow((prev) => true)}
+      >
+        + <br />
+        Add Store
+      </button>
       <AnimatePresence>
         {show ? (
           <motion.div

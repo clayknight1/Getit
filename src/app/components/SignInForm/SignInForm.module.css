@@ -1,5 +1,6 @@
 .loginBox {
-  width: 40rem;
+  width: 100%;
+  max-width: 40rem;
   height: 20rem;
   background-color: var(--color-primary-soft);
   display: flex;
