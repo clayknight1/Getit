@@ -1,8 +1,16 @@
 import { groupMembers, listItems, stores } from "@/db/schema";
 import db from "./data";
-import { desc, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import { ListItem } from "../types/list-item";
 import { Store } from "../types/stores";
+import { getCurrentUser } from "./auth";
+import { notFound } from "next/navigation";
+
+export type StoreSummary = {
+  id: number;
+  name: string;
+  itemCount: number;
+};
 
 type StoreBase = {
   id: number;
@@ -15,16 +23,21 @@ type JoinedRow = {
   list_items: ListItem | null;
 };
 
-async function getLists(userId: string): Promise<Store[]> {
+export async function getLists(userId: string): Promise<StoreSummary[]> {
   const rows = await db
-    .select()
+    .select({
+      id: stores.id,
+      name: stores.name,
+      itemCount: count(listItems.id).as("itemCount"),
+    })
     .from(stores)
     .innerJoin(groupMembers, eq(stores.groupId, groupMembers.groupId))
-    .leftJoin(listItems, eq(listItems.storeId, stores.id)) // 👈 key change
+    .leftJoin(listItems, eq(listItems.storeId, stores.id))
     .where(eq(groupMembers.userId, userId))
-    .orderBy(stores.name, listItems.purchased, desc(listItems.id));
+    .groupBy(stores.id, stores.name)
+    .orderBy(stores.name);
 
-  return groupByStore(rows);
+  return rows;
 }
 
 function groupByStore(rows: JoinedRow[]): Store[] {
@@ -44,4 +57,30 @@ function groupByStore(rows: JoinedRow[]): Store[] {
   return Array.from(stores.values());
 }
 
-export default getLists;
+export async function fetchList(storeId: number): Promise<any> {
+  if (Number.isNaN(storeId)) {
+    notFound();
+  }
+  const user = await getCurrentUser();
+  const rows = await db
+    .select()
+    .from(stores)
+    .innerJoin(groupMembers, eq(stores.groupId, groupMembers.groupId))
+    .leftJoin(listItems, eq(listItems.storeId, stores.id))
+    .where(and(eq(groupMembers.userId, user.id), eq(stores.id, storeId)));
+
+  const store = rows[0].stores;
+
+  const items = rows.map((item) => {
+    const listItem = item.list_items;
+    return {
+      id: listItem?.id,
+      name: listItem?.name,
+      purchased: listItem?.purchased,
+    };
+  });
+  return {
+    ...store,
+    listItems: items,
+  };
+}

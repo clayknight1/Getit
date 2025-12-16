@@ -69,7 +69,6 @@ export default function Navbar() {
           </DropdownMenu.Portal>
         </DropdownMenu.Root>
       </div>
-      {/* <Dialog></Dialog> */}
     </div>
   );
 }

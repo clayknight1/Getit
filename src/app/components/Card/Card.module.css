@@ -1,8 +1,8 @@
 .card {
   display: flex;
   flex-direction: column;
-  /* justify-content: space-between; */
   height: 400px;
+  width: 50%;
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
@@ -13,8 +13,9 @@
 
   h2 {
     text-align: center;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     flex-shrink: 0;
+    font-size: 2.5rem;
   }
 
   &:hover {
@@ -22,13 +23,35 @@
     box-shadow: 0 14px 35px rgba(15, 23, 42, 0.12);
     border-color: var(--color-primary-soft);
   }
+
+  @media (max-width: 768px) {
+    height: 100dvh; /* dynamic viewport height */
+    min-height: 100vh; /* fallback */
+    width: 100%;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+    box-shadow: none;
+    transform: none;
+
+    /* iOS safe-area support */
+    padding: calc(var(--space-lg) + env(safe-area-inset-top))
+      calc(var(--space-lg) + env(safe-area-inset-right))
+      calc(var(--space-lg) + env(safe-area-inset-bottom))
+      calc(var(--space-lg) + env(safe-area-inset-left));
+
+    &:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: var(--color-border);
+    }
+  }
 }
 
 /* wrapper for h2 + list */
 .cardContent {
   display: flex;
   flex-direction: column;
-  flex: 1; /* take all available vertical space */
   min-height: 0; /* IMPORTANT so the list can actually shrink and scroll */
 }
 

@@ -14,7 +14,6 @@ import { div } from "motion/react-client";
 
 export default function Card({ initialData }: { initialData: Store }) {
   const [data, setData] = useState<Store>(initialData);
-  const [showDialog, setShowDialog] = useState<boolean>(false);
 
   function handleItemSelection(itemId: number, purchased: boolean): void {
     setData((prev) => {
@@ -78,31 +77,25 @@ export default function Card({ initialData }: { initialData: Store }) {
     console.log("CLEARRR");
   }
 
-  function setShowDialogState() {
-    setShowDialog((prev) => !prev);
-  }
-
   return (
-    <div>
-      <div className={styles.card}>
-        <div className={styles.cardContent}>
-          <h2>{data?.name}</h2>
-          <ul className={styles.list}>
-            <AnimatePresence>
-              {data?.listItems.map((item: ListItem) => {
-                return (
-                  <motion.li key={item.id} exit={{ opacity: 1 }} layout>
-                    <ListItemRow
-                      item={item}
-                      onToggle={handleItemSelection}
-                      onRemove={handleRemoveItem}
-                    ></ListItemRow>
-                  </motion.li>
-                );
-              })}
-            </AnimatePresence>
-          </ul>
-        </div>
+    <div className={styles.card}>
+      <div className={styles.cardContent}>
+        <h2>{data?.name}</h2>
+        <ul className={styles.list}>
+          <AnimatePresence>
+            {data?.listItems.map((item: ListItem) => {
+              return (
+                <motion.li key={item.id} exit={{ opacity: 1 }} layout>
+                  <ListItemRow
+                    item={item}
+                    onToggle={handleItemSelection}
+                    onRemove={handleRemoveItem}
+                  ></ListItemRow>
+                </motion.li>
+              );
+            })}
+          </AnimatePresence>
+        </ul>
         <AddItemForm onAddItem={handleAddItem}></AddItemForm>
       </div>
     </div>

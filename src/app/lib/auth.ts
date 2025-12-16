@@ -3,7 +3,6 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import db from "./data";
 import { createAuthMiddleware } from "better-auth/api";
 import { groupMembers, groups, user } from "@/db/schema";
-import { InferSelectModel } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
