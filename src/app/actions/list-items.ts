@@ -37,7 +37,7 @@ export async function updateItem(
       purchasedAt,
       purchasedBy: user.id,
     })
-    .where(eq(listItems.id, itemId));
+    .where(and(eq(listItems.id, itemId), eq(listItems.storeId, storeId)));
 }
 
 export async function deleteItem(
@@ -49,7 +49,9 @@ export async function deleteItem(
   if (!hasAccess) {
     throw new Error("You don't have access to this store");
   }
-  await db.delete(listItems).where(eq(listItems.id, itemId));
+  await db
+    .delete(listItems)
+    .where(and(eq(listItems.id, itemId), eq(listItems.storeId, storeId)));
 }
 
 export async function assertUserHasStoreAccess(

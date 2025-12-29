@@ -3,7 +3,7 @@ import styles from "./SignInForm.module.css";
 import { authClient } from "@/app/lib/auth-client";
 import Button from "../Button/Button";
 
-export function SignInForm() {
+export function SignInForm({ inviteCode }: { inviteCode: string | null }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const buttonDisabled = false;
@@ -16,7 +16,7 @@ export function SignInForm() {
     if (!enteredEmail || !enteredPassword) {
       return;
     }
-    const { data, error } = await authClient.signIn.email(
+    await authClient.signIn.email(
       {
         email: enteredEmail,
         password: enteredPassword,

@@ -3,7 +3,7 @@ import styles from "./SignUpForm.module.css";
 import { authClient } from "@/app/lib/auth-client";
 import Button from "../Button/Button";
 
-export function SignUpForm() {
+export function SignUpForm({ inviteCode }: { inviteCode: string | null }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,25 +18,20 @@ export function SignUpForm() {
     if (!enteredName || !enteredEmail || !enteredPassword) {
       return;
     }
-    const { data, error } = await authClient.signUp.email(
-      {
-        email: enteredEmail,
-        password: enteredPassword,
-        name: enteredName,
-        callbackURL: "/",
+    await authClient.signUp.email({
+      email: enteredEmail,
+      password: enteredPassword,
+      name: enteredName,
+      callbackURL: "/",
+      fetchOptions: {
+        headers: {
+          "X-INVITE-CODE": inviteCode ?? "",
+        },
+        onRequest: () => console.log("LOADING..."),
+        onSuccess: (ctx) => console.log("SUCCESS:", ctx),
+        onError: (ctx) => console.error(ctx.error.message),
       },
-      {
-        onRequest: (ctx) => {
-          console.log("LOADING...");
-        },
-        onSuccess: (ctx) => {
-          console.log("SUCCESS: ", ctx);
-        },
-        onError: (ctx) => {
-          console.error(ctx.error.message);
-        },
-      }
-    );
+    });
   }
   return (
     <form onSubmit={signUp} className={styles.loginBox}>

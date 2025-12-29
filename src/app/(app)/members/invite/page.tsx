@@ -1,3 +1,10 @@
+import InviteMemberForm from "@/app/components/InviteMemberForm/InviteMemberForm";
+
 export default function InviteMemberPage() {
-  return <h1>Invite Member</h1>;
+  return (
+    <div>
+      <h1>Invite Member</h1>
+      <InviteMemberForm></InviteMemberForm>
+    </div>
+  );
 }

@@ -2,9 +2,11 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import db from "./data";
 import { createAuthMiddleware } from "better-auth/api";
-import { groupMembers, groups, user } from "@/db/schema";
+import { groupMembers, groups, invites } from "@/db/schema";
+import { user as userTable } from "@/db/auth-schema";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { and, eq, gt, isNull, sql } from "drizzle-orm";
 
 export const auth = betterAuth({
   appName: "Get It",
@@ -23,8 +25,38 @@ export const auth = betterAuth({
     level: "debug",
   },
   hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (!ctx.path.startsWith("/sign-up/email")) {
+        return;
+      }
+      const inviteCode = ctx.headers?.get("X-INVITE-CODE") ?? null;
+      if (inviteCode) {
+        const { email } = ctx.body;
+        const [invite] = await db
+          .select()
+          .from(invites)
+          .where(eq(invites.code, inviteCode))
+          .limit(1);
+
+        if (!invite) {
+          throw new Error("Invalid invite code!");
+        }
+        const signupEmailNormalized = String(email ?? "")
+          .trim()
+          .toLowerCase();
+
+        if (!invite.emailNormalized) {
+          throw new Error("Invite is not email-bound");
+        }
+
+        if (invite?.emailNormalized !== signupEmailNormalized) {
+          throw new Error("Invite email does not match");
+        }
+        ctx.context.invite = invite;
+      }
+    }),
     after: createAuthMiddleware(async (ctx) => {
-      if (!ctx.path.startsWith("/sign-up")) {
+      if (!ctx.path.startsWith("/sign-up/email")) {
         return;
       }
 
@@ -35,18 +67,62 @@ export const auth = betterAuth({
       }
 
       await db.transaction(async (tx) => {
-        const [group] = await tx
-          .insert(groups)
-          .values({
-            name: user.name ? `${user.name}'s Group` : "My First Group",
-          })
-          .returning();
+        const invite = ctx.context.invite ?? null;
+        if (invite) {
+          await tx
+            .insert(groupMembers)
+            .values({
+              userId: user.id,
+              groupId: invite.groupId,
+              role: "MEMBER",
+            })
+            .onConflictDoNothing();
 
-        await tx.insert(groupMembers).values({
-          userId: user.id,
-          groupId: group.id,
-          role: "ADMIN",
-        });
+          await tx
+            .update(userTable)
+            .set({ activeGroupId: invite.groupId })
+            .where(eq(userTable.id, user.id));
+
+          const consumed = await tx
+            .update(invites)
+            .set({
+              acceptedAt: sql`now()`,
+              acceptedBy: user.id,
+            })
+            .where(
+              and(
+                eq(invites.id, invite.id),
+                isNull(invites.acceptedAt),
+                isNull(invites.revokedAt),
+                gt(invites.expiresAt, sql`now()`)
+              )
+            )
+            .returning({ id: invites.id });
+
+          if (consumed.length === 0) {
+            throw new Error(
+              "Invite could not be consumed (expired/used/revoked)."
+            );
+          }
+        } else {
+          const [group] = await tx
+            .insert(groups)
+            .values({
+              name: user.name ? `${user.name}'s Group` : "My First Group",
+            })
+            .returning();
+
+          await tx.insert(groupMembers).values({
+            userId: user.id,
+            groupId: group.id,
+            role: "ADMIN",
+          });
+
+          await tx
+            .update(userTable)
+            .set({ activeGroupId: group.id })
+            .where(eq(userTable.id, user.id));
+        }
       });
     }),
   },
@@ -59,4 +135,9 @@ export async function getCurrentUser() {
   }
 
   return session.user;
+}
+
+export async function getCurrentUserIdOrNull(): Promise<string | null> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  return session?.user?.id ?? null;
 }

@@ -7,10 +7,7 @@ import { ListItem } from "@/app/types/list-item";
 import { Store } from "@/app/types/stores";
 import AddItemForm from "../AddItemForm/AddItemForm";
 import { addItem, deleteItem, updateItem } from "@/app/actions/list-items";
-import { ListItemUpdate } from "@/app/types/list-item-update";
 import { motion, AnimatePresence } from "motion/react";
-import Dialog from "../Dialog/Dialog";
-import { div } from "motion/react-client";
 
 export default function Card({ initialData }: { initialData: Store }) {
   const [data, setData] = useState<Store>(initialData);
@@ -71,10 +68,6 @@ export default function Card({ initialData }: { initialData: Store }) {
       return { ...prev, listItems: updatedList };
     });
     await deleteItem(id, data.id);
-  }
-
-  function handleClearPurchased(): void {
-    console.log("CLEARRR");
   }
 
   return (

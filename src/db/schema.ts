@@ -1,6 +1,6 @@
 import {
   pgTable,
-  unique,
+  uniqueIndex,
   serial,
   text,
   timestamp,
@@ -128,5 +128,57 @@ export const groupMembers = pgTable(
       columns: [table.userId, table.groupId],
       name: "group_members_pkey",
     }),
+  ]
+);
+
+export const invites = pgTable(
+  "invites",
+  {
+    id: serial("id").primaryKey().notNull(),
+
+    groupId: integer("group_id")
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
+
+    // who created the invite (must be a member/admin in your app logic)
+    createdBy: text("created_by")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+
+    // URL token
+    code: text("code").notNull(),
+
+    // Email-bound invite (recommended). nullable so you can support “share link” later.
+    email: text("email"),
+    emailNormalized: text("email_normalized"),
+
+    // keep it text like your groupMembers.role for now
+    role: text("role").notNull().default("MEMBER"),
+
+    // lifecycle
+    expiresAt: timestamp("expires_at", {
+      withTimezone: true,
+      mode: "string",
+    }).notNull(),
+
+    acceptedAt: timestamp("accepted_at", {
+      withTimezone: true,
+      mode: "string",
+    }),
+    acceptedBy: text("accepted_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+
+    revokedAt: timestamp("revoked_at", { withTimezone: true, mode: "string" }),
+
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    uniqueIndex("invites_code_ux").on(t.code),
+    index("invites_group_id_idx").on(t.groupId),
+    index("invites_email_norm_idx").on(t.emailNormalized),
+    index("invites_expires_at_idx").on(t.expiresAt),
   ]
 );

@@ -6,7 +6,6 @@ export default function MobileNav() {
   const router = useRouter();
 
   function handleHomeClick(): void {
-    console.log("handleHOmeCLick");
     router.push("/");
   }
 

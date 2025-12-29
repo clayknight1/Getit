@@ -16,6 +16,10 @@ export default function Navbar() {
     }
   }
 
+  function handleInviteMemberClick(): void {
+    router.push("/members/invite");
+  }
+
   return (
     <div className={styles.navContainer}>
       <div>
@@ -51,7 +55,7 @@ export default function Navbar() {
         </svg>
       </div>
       <div className={styles.navRight}>
-        <button>Invite</button>
+        <button onClick={handleInviteMemberClick}>Invite</button>
         <DropdownMenu.Root modal={false}>
           <DropdownMenu.Trigger asChild>
             <div className={styles.userIcon}>CA</div>

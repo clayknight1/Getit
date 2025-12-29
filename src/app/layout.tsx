@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, JetBrains_Mono, Nunito } from "next/font/google";
 import "./globals.css";
+import toast, { Toaster } from "react-hot-toast";
 
 const bodyFont = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -33,6 +34,7 @@ export default function RootLayout({
         className={`${bodyFont.variable} ${headingFont.variable} ${monoFont.variable}`}
       >
         {children}
+        <Toaster toastOptions={{ duration: 3000 }}></Toaster>
       </body>
     </html>
   );
