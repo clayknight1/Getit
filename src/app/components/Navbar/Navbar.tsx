@@ -10,7 +10,7 @@ export default function Navbar() {
   async function onLogout(): Promise<void> {
     try {
       await authClient.signOut();
-      router.push("/login");
+      router.push("/signIn");
     } catch (err) {
       console.error("Error signing out", err);
     }
@@ -58,7 +58,7 @@ export default function Navbar() {
         <button onClick={handleInviteMemberClick}>Invite</button>
         <DropdownMenu.Root modal={false}>
           <DropdownMenu.Trigger asChild>
-            <div className={styles.userIcon}>CA</div>
+            <button className={styles.userIcon}>CA</button>
           </DropdownMenu.Trigger>
 
           <DropdownMenu.Portal>

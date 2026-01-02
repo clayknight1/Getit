@@ -15,7 +15,7 @@ export default async function Invite({ params }: { params: { id: string } }) {
   });
 
   if (!session) {
-    redirect(`/login?inviteCode=${encodeURIComponent(code)}`);
+    redirect(`/signIn?inviteCode=${encodeURIComponent(code)}`);
   }
   const userId = session.user.id;
   const emailNorm = session.user.email.trim().toLowerCase();

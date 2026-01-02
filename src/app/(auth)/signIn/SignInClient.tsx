@@ -5,9 +5,11 @@ import styles from "./page.module.css";
 import { SignUpForm } from "@/app/components/SignUpForm/SignUpForm";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-export default function SignIn() {
-  const searchParams = useSearchParams();
-  const inviteCode = searchParams.get("inviteCode");
+export default function SignInClient({
+  inviteCode,
+}: {
+  inviteCode: string | null;
+}) {
   const [isSignIn, setIsSignIn] = useState(() => !inviteCode);
 
   return (
