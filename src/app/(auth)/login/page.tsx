@@ -3,37 +3,26 @@
 import { SignInForm } from "@/app/components/SignInForm/SignInForm";
 import styles from "./page.module.css";
 import { SignUpForm } from "@/app/components/SignUpForm/SignUpForm";
-import { use, useEffect, useState } from "react";
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+export default function SignIn() {
+  const searchParams = useSearchParams();
+  const inviteCode = searchParams.get("inviteCode");
+  const [isSignIn, setIsSignIn] = useState(() => !inviteCode);
 
-export default function Login({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const rawInviteCode = use(searchParams).inviteCode;
-  const inviteCode = Array.isArray(rawInviteCode)
-    ? rawInviteCode[0] ?? null
-    : rawInviteCode ?? null;
-  const [isLogin, setIsLogin] = useState(true);
-
-  useEffect(() => {
-    if (inviteCode) {
-      setIsLogin(false);
-    }
-  }, []);
   return (
-    <div className={styles.loginWrapper}>
-      {isLogin ? (
-        <SignInForm inviteCode={inviteCode}></SignInForm>
+    <div className={styles.signInWrapper}>
+      {isSignIn ? (
+        <SignInForm inviteCode={inviteCode} />
       ) : (
-        <SignUpForm inviteCode={inviteCode}></SignUpForm>
+        <SignUpForm inviteCode={inviteCode} />
       )}
-      <span>Already have an account?</span>{" "}
+      <span>Already have an account?</span>
       <button
         className={styles.linkButton}
-        onClick={() => setIsLogin((prev) => !prev)}
+        onClick={() => setIsSignIn((prev) => !prev)}
       >
-        {isLogin ? "Sign Up" : "Sign In"}
+        {isSignIn ? "Sign Up" : "Sign In"}
       </button>
     </div>
   );

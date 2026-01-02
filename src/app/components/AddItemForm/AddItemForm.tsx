@@ -31,7 +31,7 @@ export default function AddItemForm({ onAddItem }: AddItemFormProps) {
         onChange={(e) => setNewItemName(e.target.value)}
       />
       <div className={styles.buttonWrapper}>
-        <Button text="Add Item" disabled={buttonDisabled}></Button>
+        <Button disabled={buttonDisabled}>Add Item</Button>
         {/* <Button
           text="Clear Purchased"
           onButtonClick={handleClearPurchased}

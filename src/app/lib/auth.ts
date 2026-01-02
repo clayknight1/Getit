@@ -52,6 +52,25 @@ export const auth = betterAuth({
         if (invite?.emailNormalized !== signupEmailNormalized) {
           throw new Error("Invite email does not match");
         }
+
+        if (!!invite.acceptedAt) {
+          throw new Error("Invite has already been used");
+        }
+
+        if (!!invite.revokedAt) {
+          throw new Error("Invite has been revoked");
+        }
+        const emailValidation =
+          /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+        console.log("EMAIL VALIDATION", emailValidation);
+        if (!emailValidation) {
+          throw new Error("Invalid emailxxx");
+        }
+        const expiresAtDate = new Date(invite.expiresAt);
+        const now = new Date();
+        if (expiresAtDate < now) {
+          throw new Error("Invitation has expired");
+        }
         ctx.context.invite = invite;
       }
     }),

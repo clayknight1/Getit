@@ -33,7 +33,7 @@ export default function RootLayout({
       <body
         className={`${bodyFont.variable} ${headingFont.variable} ${monoFont.variable}`}
       >
-        {children}
+        <div className="appWrapper">{children}</div>
         <Toaster toastOptions={{ duration: 3000 }}></Toaster>
       </body>
     </html>

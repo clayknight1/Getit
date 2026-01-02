@@ -1,4 +1,4 @@
-.loginBox {
+.signInBox {
   width: 100%;
   max-width: 40rem;
   height: 20rem;
@@ -12,4 +12,8 @@
     padding: var(--space-sm) var(--space-md);
     margin: var(--space-md) 0;
   }
+}
+
+.error {
+  color: var(--color-danger);
 }

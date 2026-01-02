@@ -38,7 +38,7 @@ export default function InviteMemberForm() {
         label="Email"
         onChange={(e) => setEmail(e.target.value)}
       />
-      <Button text="Invite" disabled={buttonDisabled}></Button>
+      <Button disabled={buttonDisabled}>Invite</Button>
       {inviteSignupUrl && <h1>Here is the link to share: {inviteSignupUrl}</h1>}
     </form>
   );
