@@ -3,6 +3,7 @@
 import { StoreSummary } from "@/app/lib/lists";
 import styles from "./StoreListCard.module.css";
 import { useRouter } from "next/navigation";
+import Card from "../Card/Card";
 
 export default function StoreListCard({
   initialData,
@@ -16,11 +17,9 @@ export default function StoreListCard({
     router.push(`/lists/${id}`);
   }
   return (
-    <>
-      <button className={styles.card} onClick={handleOpenStore}>
-        <h2>{name}</h2>
-        <div>{itemCount}</div>
-      </button>
-    </>
+    <Card onClick={handleOpenStore}>
+      <h2>{name}</h2>
+      <div>{itemCount}</div>
+    </Card>
   );
 }

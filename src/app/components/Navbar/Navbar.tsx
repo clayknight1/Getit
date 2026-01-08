@@ -1,9 +1,13 @@
 "use client";
 
 import styles from "./Navbar.module.css";
-import { DropdownMenu } from "radix-ui";
 import { authClient } from "@/app/lib/auth-client";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+
+const UserDropdown = dynamic(() => import("../UserDropdown/UserDropdown"), {
+  ssr: false,
+});
 
 export default function Navbar() {
   const router = useRouter();
@@ -56,22 +60,7 @@ export default function Navbar() {
       </div>
       <div className={styles.navRight}>
         <button onClick={handleInviteMemberClick}>Invite</button>
-        <DropdownMenu.Root modal={false}>
-          <DropdownMenu.Trigger asChild>
-            <button className={styles.userIcon}>CA</button>
-          </DropdownMenu.Trigger>
-
-          <DropdownMenu.Portal>
-            <DropdownMenu.Content
-              className={styles.dropdownContent}
-              sideOffset={5}
-            >
-              <DropdownMenu.Item className={styles.dropdownItem}>
-                <button onClick={onLogout}>Log Out</button>
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Portal>
-        </DropdownMenu.Root>
+        <UserDropdown onLogout={onLogout}></UserDropdown>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import Card from "@/app/components/Card/Card";
+import ListItemCard from "@/app/components/ListItemCard/ListItemCard";
 import { fetchList } from "@/app/lib/lists";
 
 export default async function List({ params }: { params: { id: string } }) {
@@ -8,7 +8,7 @@ export default async function List({ params }: { params: { id: string } }) {
 
   return (
     <>
-      <Card initialData={list}></Card>
+      <ListItemCard initialData={list}></ListItemCard>
     </>
   );
 }
