@@ -11,6 +11,16 @@ export async function addItem(name: string, storeId: number) {
   if (!hasAccess) {
     throw new Error("You don't have access to this store");
   }
+  if (user.email === "onetripdemo@test.com") {
+    const itemCount = await db.query.listItems.findMany({
+      where: eq(listItems.storeId, storeId),
+    });
+
+    if (itemCount.length >= 20) {
+      throw new Error("Demo account limit: 20 items per list");
+    }
+  }
+
   await db.insert(listItems).values({
     name: name,
     addedBy: user.id,
@@ -22,8 +32,8 @@ export async function addItem(name: string, storeId: number) {
 export async function updateItem(
   itemId: number,
   storeId: number,
-  purchased: boolean
-): Promise<any> {
+  purchased: boolean,
+): Promise<void> {
   const user = await getCurrentUser();
   const hasAccess = await assertUserHasStoreAccess(user.id, storeId);
   const purchasedAt = purchased ? new Date().toISOString() : null;
@@ -42,8 +52,8 @@ export async function updateItem(
 
 export async function deleteItem(
   itemId: number,
-  storeId: number
-): Promise<any> {
+  storeId: number,
+): Promise<void> {
   const user = await getCurrentUser();
   const hasAccess = await assertUserHasStoreAccess(user.id, storeId);
   if (!hasAccess) {
@@ -56,7 +66,7 @@ export async function deleteItem(
 
 export async function assertUserHasStoreAccess(
   userId: string,
-  storeId: number
+  storeId: number,
 ): Promise<boolean> {
   const result = await db
     .select({ id: stores.id })

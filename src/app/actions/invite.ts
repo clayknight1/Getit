@@ -13,13 +13,16 @@ export type InviteToGroupResult = {
 };
 
 export async function inviteToGroup(
-  email: string
+  email: string,
 ): Promise<InviteToGroupResult> {
   const user = await getCurrentUser();
+  if (user.email === "onetripdemo@test.com") {
+    throw new Error("Demo account cannot invite users");
+  }
   const activeGroupId = await getActiveGroupId();
   const code = crypto.randomUUID();
   const expiresAt = new Date(
-    Date.now() + 1000 * 60 * 60 * 24 * 7
+    Date.now() + 1000 * 60 * 60 * 24 * 7,
   ).toISOString();
   const emailNormalized = email.trim().toLowerCase();
   if (!activeGroupId) throw new Error("No active group");
@@ -30,8 +33,8 @@ export async function inviteToGroup(
     .where(
       and(
         eq(groupMembers.userId, user.id),
-        eq(groupMembers.groupId, activeGroupId)
-      )
+        eq(groupMembers.groupId, activeGroupId),
+      ),
     )
     .limit(1);
 
