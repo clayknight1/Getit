@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ListItemRow from "../ListItemRow/ListItemRow";
 import styles from "./ListItemCard.module.css";
 import { ListItem } from "@/app/types/list-item";
@@ -12,11 +12,13 @@ import Card from "../Card/Card";
 
 export default function ListItemCard({ initialData }: { initialData: Store }) {
   const [data, setData] = useState<Store>(initialData);
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   function handleItemSelection(itemId: number, purchased: boolean): void {
+    const previousListItems = [...data.listItems];
     setData((prev) => {
       const updatedListItems = prev.listItems.map((item) =>
-        item.id === itemId ? { ...item, purchased } : item
+        item.id === itemId ? { ...item, purchased } : item,
       );
 
       const unpurchased = updatedListItems
@@ -33,7 +35,25 @@ export default function ListItemCard({ initialData }: { initialData: Store }) {
       };
     });
 
-    updateItem(itemId, data.id, purchased);
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        await updateItem(itemId, data.id, purchased);
+      } catch (error) {
+        console.error("Failed to sync with database:", error);
+
+        setData((prev) => ({
+          ...prev,
+          listItems: previousListItems,
+        }));
+
+        // OPTIONAL: Revert UI state here if the database update fails
+        // (e.g., show a toast notification: "Connection lost, changes not saved")
+      }
+    }, 500);
   }
 
   async function handleAddItem(itemName: string): Promise<void> {
